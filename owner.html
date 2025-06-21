@@ -1,0 +1,228 @@
+<!-- ======================= owner.html FINAL ======================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>👑 OWNER - SANDEVA DIGITAL STORE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://files.catbox.moe/73u7ob.jpg') center/cover no-repeat;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
+    }
+    h1 { text-align: center; margin-bottom: 30px; text-shadow: 0 0 8px black; }
+    .menu-wrapper { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; }
+    .menu-card {
+      background: white; color: black; padding: 12px 20px; border-radius: 10px;
+      font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .menu-card:hover { transform: scale(1.05); background: #e0f7ec; }
+    .card-section {
+      background: white; color: black; border-radius: 10px; box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+      max-width: 600px; margin: auto; padding: 20px; display: none;
+    }
+    input, textarea {
+      width: 100%; padding: 8px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc;
+    }
+    button {
+      background: #25D366; color: white; padding: 10px; border: none; border-radius: 5px;
+      cursor: pointer; font-weight: bold; width: 100%;
+    }
+    button:hover { background: #128C7E; }
+    .danger { background: #e74c3c; }
+    .danger:hover { background: #c0392b; }
+  </style>
+</head>
+<body>
+<h1>👑 OWNER PANEL - SANDEVA DIGITAL STORE</h1>
+
+<div class="menu-wrapper">
+  <div class="menu-card" onclick="showSection('pesanan')">📋 Pesanan</div>
+  <div class="menu-card" onclick="showSection('produk')">➕ Tambah Produk</div>
+  <div class="menu-card" onclick="showSection('kelola')">🧰 Kelola Produk</div>
+  <div class="menu-card" onclick="showSection('statistik')">📈 Statistik</div>
+  <div class="menu-card" onclick="showSection('akun')">⚙️ Akun Admin</div>
+  <div class="menu-card" onclick="logout()">🔒 Logout</div>
+</div>
+
+<div class="card-section" id="pesanan">
+  <h2>📋 Daftar Pembeli</h2>
+  <div id="list-pesanan"></div>
+<label style="display:block; margin-top:10px;">
+  <input type="checkbox" id="filter-selesai" onchange="tampilPesanan()"> Hanya tampilkan yang belum selesai
+</label>
+  <button class="danger" onclick="resetPesanan()">🗑️ Reset Pesanan</button>
+</div>
+
+<div class="card-section" id="produk">
+  <h2>➕ Tambah Produk</h2>
+  <input id="nama-produk" placeholder="Nama Produk">
+  <input id="harga-produk" type="number" placeholder="Harga">
+  <textarea id="deskripsi-produk" placeholder="Deskripsi"></textarea>
+  <input id="gambar-produk" placeholder="URL Gambar Produk">
+  <input id="link-penjual" placeholder="Link Penjual">
+  <button onclick="tambahProduk()">Tambah</button>
+</div>
+
+<div class="card-section" id="kelola">
+  <h2>🧰 Kelola Produk</h2>
+  <div id="daftar-produk"></div>
+</div>
+
+<div class="card-section" id="statistik">
+  <h2>📈 Statistik Penjualan</h2>
+  <div id="isi-statistik"></div>
+  <button class="danger" onclick="resetStatistik()">🗑️ Reset Statistik</button>
+</div>
+
+<div class="card-section" id="akun">
+  <h2>⚙️ Akun Admin</h2>
+  <input id="email-admin" placeholder="Email">
+  <input id="nohp-admin" placeholder="Nomor HP">
+  <input id="password-admin" placeholder="Password baru">
+  <button onclick="simpanAdmin()">Simpan</button>
+</div>
+
+<script>
+const showSection = id => {
+  document.querySelectorAll('.card-section').forEach(s => s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  if (id === 'pesanan') tampilPesanan();
+  if (id === 'kelola') kelolaProduk();
+  if (id === 'statistik') tampilStatistik();
+  if (id === 'akun') muatAdmin();
+};
+
+const cariLinkPenjual = (namaProduk) => {
+  const produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+  const item = produk.find(p => p.nama === namaProduk);
+  return item ? item.link : '#';
+};
+
+const tampilPesanan = () => {
+  const data = JSON.parse(localStorage.getItem('owner.json')) || { pesanan: [] };
+  const hanyaBelumSelesai = document.getElementById('filter-selesai')?.checked;
+
+  const list = data.pesanan.map((p, i) => {
+    if (hanyaBelumSelesai && p.selesai) return '';
+    const selesai = p.selesai ? '✅' : '❌';
+    return `
+      <div style="border:1px solid #ccc; margin:10px 0; padding:10px; background:${p.selesai ? '#e0ffe0' : '#fff'}; color:black;">
+        <b>${p.nama_produk}</b> - Rp${p.harga}<br>
+        <a href="${cariLinkPenjual(p.nama_produk)}" target="_blank">🔗 Link Penjual</a><br>
+        <small>${p.user} | ${p.email} | ${p.no_hp} | ${p.waktu}</small><br>
+        <label>
+          <input type="checkbox" onchange="toggleSelesai(${i})" ${p.selesai ? 'checked' : ''}> Tandai selesai
+        </label>
+        <span style="float:right;">${selesai}</span>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('list-pesanan').innerHTML = list.trim() || '<p>Tidak ada pesanan untuk ditampilkan.</p>';
+};
+
+const resetPesanan = () => {
+  if (!confirm('Yakin hapus semua pesanan?')) return;
+  let data = JSON.parse(localStorage.getItem('owner.json')) || {};
+  data.pesanan = [];
+  localStorage.setItem('owner.json', JSON.stringify(data));
+  tampilPesanan();
+};
+
+const tambahProduk = () => {
+  const nama = document.getElementById('nama-produk').value.trim();
+  const harga = parseInt(document.getElementById('harga-produk').value);
+  const deskripsi = document.getElementById('deskripsi-produk').value.trim();
+  const gambar = document.getElementById('gambar-produk').value.trim();
+  const link = document.getElementById('link-penjual').value.trim();
+  if (!nama || !harga || !deskripsi || !gambar || !link) return alert('Semua kolom wajib diisi.');
+  let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+  produk.push({ nama, harga, deskripsi, gambar, link });
+  localStorage.setItem('produk.json', JSON.stringify(produk));
+  alert('Produk berhasil ditambahkan.');
+};
+
+const kelolaProduk = () => {
+  let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+  let html = produk.map((p,i) => `
+    <div style="border-bottom:1px solid #ccc;margin:10px 0">
+      <b>${p.nama}</b> - Rp${p.harga}<br><small>${p.deskripsi}</small><br>
+      <a href="${p.link}" target="_blank">🔗 Link Penjual</a><br>
+      <button onclick="hapusProduk(${i})">Hapus</button>
+    </div>`).join('');
+  document.getElementById('daftar-produk').innerHTML = html || 'Belum ada produk.';
+};
+
+const hapusProduk = (i) => {
+  let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+  if (!confirm('Hapus produk ini?')) return;
+  produk.splice(i, 1);
+  localStorage.setItem('produk.json', JSON.stringify(produk));
+  kelolaProduk();
+};
+
+const tampilStatistik = () => {
+  let akun = JSON.parse(localStorage.getItem('akun.json')) || { history: [] };
+  let total = akun.history.reduce((sum,h) => sum + (h.harga || 0), 0);
+  let jumlah = akun.history.length;
+  document.getElementById('isi-statistik').innerHTML = `
+    Total Penjualan: ${jumlah} produk<br>Total Pendapatan: Rp${total}`;
+};
+
+const resetStatistik = () => {
+  if (!confirm('Yakin reset statistik?')) return;
+  let akun = JSON.parse(localStorage.getItem('akun.json')) || {};
+  akun.history = [];
+  localStorage.setItem('akun.json', JSON.stringify(akun));
+  tampilStatistik();
+};
+
+const muatAdmin = () => {
+  let owner = JSON.parse(localStorage.getItem('owner.json')) || {};
+  document.getElementById('email-admin').value = owner.akun?.email || '';
+  document.getElementById('nohp-admin').value = owner.akun?.no_hp || '';
+};
+
+const simpanAdmin = () => {
+  let owner = JSON.parse(localStorage.getItem('owner.json')) || {};
+  owner.akun.email = document.getElementById('email-admin').value;
+  owner.akun.no_hp = document.getElementById('nohp-admin').value;
+  let pass = document.getElementById('password-admin').value.trim();
+  if (pass) owner.akun.password = pass;
+  localStorage.setItem('owner.json', JSON.stringify(owner));
+  alert('Akun admin diperbarui');
+};
+
+const logout = () => {
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('role');
+  window.location.href = 'index.html';
+};
+
+(function init() {
+  if (!localStorage.getItem('owner.json')) {
+    localStorage.setItem('owner.json', JSON.stringify({
+      akun: { username: 'admin', password: 'admin123', email: '', no_hp: '' },
+      pesanan: []
+    }));
+  }
+  if (!localStorage.getItem('produk.json')) {
+    localStorage.setItem('produk.json', JSON.stringify([]));
+  }
+  showSection('pesanan');
+})();
+</script>
+</body>
+</html>
+<!-- =================== END owner.html FINAL =================== -->

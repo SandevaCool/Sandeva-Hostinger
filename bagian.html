@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SANDEVA DIGITAL STORE</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-image: url('https://files.catbox.moe/73u7ob.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px rgba(0,0,0,0.7);
+    }
+    #logout-bar {
+      text-align: right;
+      margin-bottom: 15px;
+    }
+    #logout-bar button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #back-button {
+      margin-bottom: 10px;
+    }
+    #back-button button {
+      background: #ffffff;
+      color: #000;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .menu-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .menu-card {
+      background: #fff;
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      min-width: 120px;
+    }
+    .card-section {
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 10px auto;
+      padding: 15px;
+      display: none;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .product {
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      width: 250px;
+      padding: 15px;
+      text-align: center;
+    }
+    .product img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .buy-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 5px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .buy-btn:first-of-type { background: #25D366; }
+    .buy-btn:last-of-type { background: #007bff; }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #25D366;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #128C7E;
+    }
+    @media (max-width: 600px) {
+      .product {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>💫 SANDEVA DIGITAL STORE 🚀</h1>
+
+  <div id="logout-bar" style="display:none;">
+    <button onclick="logout()">🔒 Logout</button>
+  </div>
+
+  <div id="back-button" style="display:none;">
+    <button onclick="kembaliKeMenu()">🔙 Kembali ke Menu</button>
+  </div>
+
+  <div class="menu-wrapper">
+    <div class="menu-card" onclick="showSection('akun')">👤 Akun Saya</div>
+    <div class="menu-card" onclick="showSection('pengaturan')">⚙️ Pengaturan</div>
+    <div class="menu-card" onclick="showSection('history')">📜 History</div>
+    <div class="menu-card" onclick="showSection('keranjang')">🛒 Keranjang</div>
+    <div class="menu-card" id="menu-pesanan" onclick="showSection('pesanan')" style="display:none;">📦 Pesanan Masuk</div>
+    <div class="menu-card" onclick="showSection('qna')">❓ Tanya Admin</div>
+  </div>
+
+  <div class="container" id="produk"></div>
+
+  <div class="card-section" id="akun">
+    <h2>👤 Akun Saya</h2>
+    <input id="email" placeholder="Email" />
+    <input id="no_hp" placeholder="Nomor HP" />
+    <button onclick="simpanProfil()">Simpan</button>
+  </div>
+
+  <div class="card-section" id="pengaturan">
+    <h2>⚙️ Pengaturan</h2>
+    <select id="tema"><option value="terang">Terang</option><option value="gelap">Gelap</option></select><br>
+    <input type="checkbox" id="notifikasi"> Notifikasi Aktif<br>
+    <select id="bahasa"><option value="id">Indonesia</option><option value="en">English</option></select><br>
+    <button onclick="simpanPengaturan()">Simpan</button>
+  </div>
+
+  <div class="card-section" id="history">
+    <h2>📜 Riwayat Pembelian</h2>
+    <div id="list-history"></div>
+  </div>
+
+  <div class="card-section" id="keranjang">
+    <h2>🛒 Keranjang</h2>
+    <div id="list-keranjang"></div>
+  </div>
+
+  <div class="card-section" id="pesanan">
+    <h2>📦 Pesanan Masuk</h2>
+    <div id="list-pesanan"></div>
+  </div>
+
+  <div class="card-section" id="qna">
+    <h2>❓ Tanya Admin / Owner</h2>
+    <p>Silakan hubungi admin melalui:</p>
+    <ul style="list-style:none; padding:0;">
+      <li><a href="https://t.me/sandevadigitalstore" target="_blank">🔵 Telegram</a></li>
+      <li><a href="https://wa.me/6288245019629" target="_blank">🟢 WhatsApp </a></li>
+      <li><a href="mailto:sandevadigitalstore@gmail.com" target="_blank">🔴 Email</a></li>
+    </ul>
+  </div>
+
+  <script>
+    function kosongkanDataAwal() {
+      if (!localStorage.getItem('akun.json')) {
+        localStorage.setItem('akun.json', JSON.stringify({
+          akun: { username: "", password: "", email: "", no_hp: "" },
+          pengaturan: { tema: "terang", notifikasi: true, bahasa: "id" },
+          keranjang: [],
+          history: []
+        }));
+      }
+      if (!localStorage.getItem('owner.json')) {
+        localStorage.setItem('owner.json', JSON.stringify({
+          akun: { username: 'admin', password: 'admin123', email: '', no_hp: '' },
+          pesanan: []
+        }));
+      }
+    }
+
+    function cekLogin() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const role = localStorage.getItem('role');
+      if (isLoggedIn !== 'true') {
+        alert("Silakan login terlebih dahulu.");
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('logout-bar').style.display = 'block';
+        if (role === 'owner') {
+          document.getElementById('menu-pesanan').style.display = 'inline-block';
+          tampilPesanan();
+        }
+        document.getElementById('produk').style.display = 'flex'; // tampilkan produk langsung
+        tampilkanProduk();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('role');
+      window.location.href = 'index.html';
+    }
+
+    function showSection(id) {
+      ['produk', 'akun', 'pengaturan', 'history', 'keranjang', 'pesanan', 'qna'].forEach(sec => {
+        const el = document.getElementById(sec);
+        if (el) el.style.display = 'none';
+      });
+      const el = document.getElementById(id);
+      if (el) el.style.display = id === 'produk' ? 'flex' : 'block';
+
+      document.querySelector('.menu-wrapper').style.display = 'none';
+      document.getElementById('back-button').style.display = 'block';
+
+      if (id === 'akun') muatProfil();
+      if (id === 'pengaturan') muatPengaturan();
+      if (id === 'history') tampilHistory();
+      if (id === 'keranjang') tampilKeranjang();
+      if (id === 'pesanan') tampilPesanan();
+    }
+
+    function kembaliKeMenu() {
+      ['produk', 'akun', 'pengaturan', 'history', 'keranjang', 'pesanan', 'qna'].forEach(sec => {
+        const el = document.getElementById(sec);
+        if (el) el.style.display = 'none';
+      });
+      document.querySelector('.menu-wrapper').style.display = 'flex';
+      document.getElementById('produk').style.display = 'flex';
+      document.getElementById('back-button').style.display = 'none';
+    }
+
+    function tampilkanProduk() {
+      let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+      if (produk.length === 0) {
+        document.getElementById('produk').innerHTML = '<p>Belum ada produk tersedia.</p>';
+        return;
+      }
+      let html = produk.map(p => `
+        <div class="product">
+          <img src="${p.gambar}" alt="${p.nama}">
+          <h3>${p.nama}</h3>
+          <p>${p.deskripsi}</p>
+          <div class="price">Rp ${p.harga}</div>
+          <a href="#" class="buy-btn" onclick="beli('${p.nama}', ${p.harga})">Beli</a>
+          <a href="#" class="buy-btn" onclick="masukkanKeranjang('${p.nama}', ${p.harga})">+ Keranjang</a>
+        </div>
+      `).join('');
+      document.getElementById('produk').innerHTML = html;
+    }
+
+    function beli(nama, harga) {
+      if (!confirm(`Apakah Anda yakin ingin membeli ${nama} seharga Rp ${harga}?`)) {
+        alert("❌ Pembelian dibatalkan.");
+        return;
+      }
+
+      kosongkanDataAwal();
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      if (!data.akun.email || !data.akun.no_hp) {
+        alert("⚠️ Lengkapi Email dan Nomor HP dulu di menu Akun Saya!");
+        showSection('akun');
+        return;
+      }
+
+      data.history.push({ produk: nama, harga, tanggal: new Date().toLocaleString() });
+      localStorage.setItem('akun.json', JSON.stringify(data));
+
+      let owner = JSON.parse(localStorage.getItem('owner.json'));
+      owner.pesanan.push({
+        nama_produk: nama,
+        harga,
+        user: data.akun.username,
+        email: data.akun.email,
+        no_hp: data.akun.no_hp,
+        waktu: new Date().toLocaleString()
+      });
+      localStorage.setItem('owner.json', JSON.stringify(owner));
+
+      alert("✅ Produk berhasil dibeli dan dikirim ke owner.");
+    }
+
+    function masukkanKeranjang(nama, harga) {
+      kosongkanDataAwal();
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      data.keranjang.push({ nama, harga, jumlah: 1 });
+      localStorage.setItem('akun.json', JSON.stringify(data));
+      alert("Produk ditambahkan ke keranjang.");
+    }
+
+    function tampilKeranjang() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      let html = data.keranjang.map((k, i) =>
+        `<p>${k.nama} - Rp ${k.harga} x${k.jumlah} 
+          <button onclick="beli('${k.nama}', ${k.harga})">Beli</button>
+          <button onclick="hapusKeranjang(${i})">Hapus</button>
+        </p>`
+      ).join('');
+      document.getElementById('list-keranjang').innerHTML = html || '<p>Keranjang kosong.</p>';
+    }
+
+    function hapusKeranjang(i) {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      data.keranjang.splice(i, 1);
+      localStorage.setItem('akun.json', JSON.stringify(data));
+      tampilKeranjang();
+    }
+
+    function tampilHistory() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      let html = data.history.map(h => `<p>${h.produk} - Rp ${h.harga}<br><small>${h.tanggal}</small></p>`).join('');
+      document.getElementById('list-history').innerHTML = html || '<p>Belum ada pembelian.</p>';
+    }
+
+    function tampilPesanan() {
+      let owner = JSON.parse(localStorage.getItem('owner.json'));
+      let html = owner.pesanan.map(p =>
+        `<p><b>${p.nama_produk}</b> - Rp ${p.harga}<br><small>${p.user} | ${p.email} | ${p.no_hp} | ${p.waktu}</small></p>`
+      ).join('');
+      document.getElementById('list-pesanan').innerHTML = html || '<p>Belum ada pesanan.</p>';
+    }
+
+    function muatProfil() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      document.getElementById('email').value = data.akun.email;
+      document.getElementById('no_hp').value = data.akun.no_hp;
+    }
+
+    function simpanProfil() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      data.akun.email = document.getElementById('email').value;
+      data.akun.no_hp = document.getElementById('no_hp').value;
+      localStorage.setItem('akun.json', JSON.stringify(data));
+      alert("Profil disimpan.");
+    }
+
+    function muatPengaturan() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      document.getElementById('tema').value = data.pengaturan.tema;
+      document.getElementById('notifikasi').checked = data.pengaturan.notifikasi;
+      document.getElementById('bahasa').value = data.pengaturan.bahasa;
+    }
+
+    function simpanPengaturan() {
+      let data = JSON.parse(localStorage.getItem('akun.json'));
+      data.pengaturan.tema = document.getElementById('tema').value;
+      data.pengaturan.notifikasi = document.getElementById('notifikasi').checked;
+      data.pengaturan.bahasa = document.getElementById('bahasa').value;
+      localStorage.setItem('akun.json', JSON.stringify(data));
+      alert("Pengaturan disimpan.");
+    }
+
+    kosongkanDataAwal();
+    cekLogin();
+  </script>
+</body>
+</html>

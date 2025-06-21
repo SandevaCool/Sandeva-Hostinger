@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - SANDEVA DIGITAL STORE</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://files.catbox.moe/73u7ob.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6); /* efek gelap */
+      z-index: -1;
+    }
+
+    .container {
+      background: rgba(51, 51, 51, 0.85); /* box dalam semi-transparan */
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 0 15px #25D366;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #25D366;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 15px 0;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #25D366;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #128C7E;
+    }
+
+    .switch {
+      margin-top: 15px;
+      text-align: center;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .switch:hover {
+      color: #25D366;
+    }
+
+    .error, .success {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      display: none;
+      text-align: center;
+    }
+
+    .error { background: #e74c3c; }
+    .success { background: #2ecc71; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="auth-container">
+  <div id="error-msg" class="error"></div>
+  <div id="success-msg" class="success"></div>
+
+  <!-- Form Login -->
+  <div id="login-form">
+    <h2>🚀 SANDEVA DIGITAL STORE LOGIN ACCOUNT</h2>
+    <input type="text" id="login-username" placeholder="Username" />
+    <input type="password" id="login-password" placeholder="Password" />
+    <button onclick="login()">❄️Login🔥</button>
+    <div class="switch" onclick="showRegister()">Belum punya akun? Daftar Dulu Kontoll🤡</div>
+  </div>
+
+  <!-- Form Register -->
+  <div id="register-form" style="display:none;">
+    <h2>🚀Bikin Akun Dulu Broo Ku😎</h2>
+    <input type="text" id="reg-username" placeholder="Username" />
+    <input type="password" id="reg-password" placeholder="Password" />
+    <button onclick="register()">😄Daftar😄</button>
+    <div class="switch" onclick="showLogin()">Sudah punya akun? Login Ajah Kontoll🤡</div>
+  </div>
+</div>
+
+<script>
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  function showLogin() {
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('register-form').style.display = 'none';
+  }
+
+  function showRegister() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'block';
+  }
+
+  function register() {
+    const username = document.getElementById('reg-username').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    if (!username || !password) {
+      showError("Isi semua kolom!");
+      return;
+    }
+
+    const data = {
+      akun: { username, password, email: "", no_hp: "" },
+      pengaturan: { tema: "terang", notifikasi: true, bahasa: "id" },
+      keranjang: [],
+      history: []
+    };
+
+    localStorage.setItem('akun.json', JSON.stringify(data));
+    showSuccess("Registrasi berhasil!");
+    showLogin();
+  }
+
+  function login() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!username || !password) {
+      showError("Isi username dan password!");
+      return;
+    }
+
+    // Login Admin
+    if (username === 'sandeva' && password === '#Sann2527') {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('role', 'owner');
+
+      if (!localStorage.getItem('owner.json')) {
+        localStorage.setItem('owner.json', JSON.stringify({
+          akun: { username: 'sandeva', password: '#Sann2527', email: '', no_hp: '' },
+          pesanan: []
+        }));
+      }
+
+      showSuccess("Login owner berhasil!");
+      setTimeout(() => {
+        window.location.href = 'owner.html';
+      }, 1500);
+      return;
+    }
+
+    // Login User Biasa
+    const userData = JSON.parse(localStorage.getItem('akun.json'));
+
+    if (!userData || !userData.akun) {
+      showError("Belum ada akun pengguna.");
+      return;
+    }
+
+    if (
+      userData.akun.username.toLowerCase() !== username.toLowerCase() ||
+      userData.akun.password !== password
+    ) {
+      showError("Username atau password salah.");
+      return;
+    }
+
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('role', 'user');
+    showSuccess("Login berhasil!");
+    setTimeout(() => {
+      window.location.href = 'bagian.html';
+    }, 1500);
+  }
+</script>
+</body>
+</html>
