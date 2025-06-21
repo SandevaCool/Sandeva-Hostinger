@@ -264,24 +264,46 @@
       document.getElementById('back-button').style.display = 'none';
     }
 
-    function tampilkanProduk() {
-      let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
-      if (produk.length === 0) {
-        document.getElementById('produk').innerHTML = '<p>Belum ada produk tersedia.</p>';
-        return;
-      }
-      let html = produk.map(p => `
-        <div class="product">
-          <img src="${p.gambar}" alt="${p.nama}">
-          <h3>${p.nama}</h3>
-          <p>${p.deskripsi}</p>
-          <div class="price">Rp ${p.harga}</div>
-          <a href="#" class="buy-btn" onclick="beli('${p.nama}', ${p.harga})">Beli</a>
-          <a href="#" class="buy-btn" onclick="masukkanKeranjang('${p.nama}', ${p.harga})">+ Keranjang</a>
-        </div>
-      `).join('');
-      document.getElementById('produk').innerHTML = html;
+  function inisialisasiProdukAwal() {
+    if (!localStorage.getItem('produk.json')) {
+      const produkDefault = [
+        {
+          nama: "Script Install Panel Peterodactyl",
+          harga: 30000,
+          deskripsi: "Sudah Free Domain Fitur Banyak Bonus Create VPS (Add Api Do)",
+          gambar: "https://files.catbox.moe/6k0mjl.jpg",
+          link: "https://wa.me/6281342074706"
+        },
+        {
+          nama: "Voucher Game",
+          harga: 50000,
+          deskripsi: "Voucher Mobile Legends, FF, PUBG, dan lainnya",
+          gambar: "https://i.ibb.co/g9k2Zqp/voucher.jpg",
+          link: "https://wa.me/6281234567890"
+        }
+      ];
+      localStorage.setItem('produk.json', JSON.stringify(produkDefault));
     }
+  }
+
+function tampilkanProduk() {
+  let produk = JSON.parse(localStorage.getItem('produk.json')) || [];
+  if (produk.length === 0) {
+    document.getElementById('produk').innerHTML = '<p>Belum ada produk tersedia.</p>';
+    return;
+  }
+  let html = produk.map(p => `
+    <div class="product">
+      <img src="${p.gambar}" alt="${p.nama}">
+      <h3>${p.nama}</h3>
+      <p>${p.deskripsi}</p>
+      <div class="price">Rp ${p.harga}</div>
+      <a href="${p.link}" target="_blank" class="buy-btn">Beli</a>
+      <a href="#" class="buy-btn" onclick="masukkanKeranjang('${p.nama}', ${p.harga})">+ Keranjang</a>
+    </div>
+  `).join('');
+  document.getElementById('produk').innerHTML = html;
+}
 
     function beli(nama, harga) {
       if (!confirm(`Apakah Anda yakin ingin membeli ${nama} seharga Rp ${harga}?`)) {
@@ -385,6 +407,7 @@
     }
 
     kosongkanDataAwal();
+    inisialisasiProdukAwal();
     cekLogin();
   </script>
 </body>
